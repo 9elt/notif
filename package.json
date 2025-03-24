@@ -1,0 +1,30 @@
+{
+    "name": "@9elt/notif",
+    "version": "0.1.0",
+    "description": "Run a script on notifications (when their pop up disappears) on macOS Sequoia 15+",
+    "type": "module",
+    "scripts": {
+        "build": "tsc && bun build.js",
+        "format": "prettier --write ./*.ts",
+        "pub": "npm run build && npm run test && npm publish"
+    },
+    "bin": {
+        "notif": "./index.js"
+    },
+    "author": "Lorenzo Cicuttin",
+    "license": "MIT",
+    "keywords": [
+        "macOS",
+        "notifications",
+        "scripting"
+    ],
+    "readme": "./README.md",
+    "homepage": "https://github.com/9elt/notif#readme",
+    "repository": "github:9elt/notif",
+    "devDependencies": {
+        "@types/node": "^22.13.13",
+        "bplist-parser": "^0.3.2",
+        "prettier": "^3.4.2",
+        "sqlite3": "^5.1.7"
+    }
+}

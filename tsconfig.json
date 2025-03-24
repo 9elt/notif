@@ -1,0 +1,15 @@
+{
+    "include": [
+        "index.ts"
+    ],
+    "exclude": [],
+    "compilerOptions": {
+        "types": [
+            "@types/node"
+        ],
+        "noEmit": true,
+        "target": "ESNext",
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+    }
+}
