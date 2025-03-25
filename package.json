@@ -6,7 +6,7 @@
     "scripts": {
         "build": "tsc && bun build.js",
         "format": "prettier --write ./*.ts",
-        "pub": "npm run build && npm run test && npm publish"
+        "pub": "npm run build && npm publish"
     },
     "bin": {
         "notif": "./index.js"
