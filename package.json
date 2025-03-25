@@ -1,11 +1,11 @@
 {
     "name": "@9elt/notif",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "description": "Run a script on notifications (when their pop up disappears) on macOS Sequoia 15+",
     "type": "module",
     "scripts": {
         "build": "tsc && bun build.js",
-        "format": "prettier --write ./*.ts",
+        "format": "prettier --write ./src/*.ts",
         "pub": "npm run build && npm publish"
     },
     "bin": {

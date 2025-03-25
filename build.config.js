@@ -1,6 +1,6 @@
 export default {
     minify: false,
-    entrypoint: "./index.ts",
+    entrypoint: "./src/index.ts",
     outdir: ".",
     external: ["sqlite3"],
 };

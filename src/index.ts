@@ -4,9 +4,15 @@ import { parseBuffer } from "bplist-parser";
 import { spawnSync } from "child_process";
 import fs from "fs";
 import { userInfo } from "os";
+import { PACKAGE_VERSION } from "./macro" assert { type: "macro" };
 
 const QUERY_INTERVAL = 5_000;
 const MAX_CONSECUTIVE_ERRORS = 5;
+
+if (process.argv.includes("--version")) {
+    console.log(PACKAGE_VERSION());
+    process.exit(0);
+}
 
 const script = process.argv[2];
 
