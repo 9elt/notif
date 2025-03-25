@@ -9,7 +9,7 @@
         "pub": "npm run build && npm publish"
     },
     "bin": {
-        "notif": "./index.js"
+        "notif": "index.js"
     },
     "author": "Lorenzo Cicuttin",
     "license": "MIT",
@@ -20,7 +20,10 @@
     ],
     "readme": "./README.md",
     "homepage": "https://github.com/9elt/notif#readme",
-    "repository": "github:9elt/notif",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/9elt/notif.git"
+    },
     "devDependencies": {
         "@types/node": "^22.13.13",
         "bplist-parser": "^0.3.2",
