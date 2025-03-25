@@ -43,7 +43,7 @@ const sqlite3 = require("sqlite3").verbose();
 const db = new sqlite3.Database(
     dbPath,
     sqlite3.OPEN_READONLY,
-    (error) => {
+    (error: Error) => {
         if (error) {
             console.error(
                 "Error connecting to database",
@@ -55,19 +55,15 @@ const db = new sqlite3.Database(
     }
 );
 
-function close() {
+process.on("SIGINT", () => {
     console.log("Signal received, closing database");
-
     try {
         db.close();
     } catch (error) {
         console.error("Cannot close database", error);
     }
-
     process.exit(0);
-}
-
-process.on("SIGINT", close);
+});
 
 const _2001_01_01 = new Date("2001-01-01").getTime();
 
@@ -76,15 +72,58 @@ const startDate = (Date.now() - _2001_01_01) / 1000;
 let lastId = 0;
 let errors = 0;
 
+type QueryResult = {
+    rec_id: number;
+    data: Buffer;
+};
+
+function handle(rows: QueryResult[]) {
+    for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
+
+        const [data] = parseBuffer(row.data);
+
+        const id = row.rec_id;
+        const app = data?.app;
+        const title = data?.req?.titl;
+        const subtitle = data?.req?.subt;
+        const body = data?.req?.body;
+        const date =
+            data?.date &&
+            new Date(_2001_01_01 + data.date * 1000);
+
+        console.log("received", id, "from", app);
+
+        spawnSync(
+            script,
+            [
+                id || "",
+                app || "",
+                title || "",
+                subtitle || "",
+                body || "",
+                date?.toISOString() || "",
+            ],
+            {
+                encoding: "utf8",
+            }
+        );
+
+        if (i === rows.length - 1) {
+            lastId = id;
+        }
+    }
+}
+
 function loop() {
     db.all(
-        `SELECT rec_id, app_id, data, delivered_date FROM record
+        `SELECT rec_id, data FROM record
 WHERE rec_id > ${lastId}
 AND delivered_date > ${startDate}
 ORDER BY rec_id ASC`,
         (error: Error | undefined, rows: unknown[]) => {
             if (error) {
-                console.error("QUERY ERROR:", error.message);
+                console.error("Query error:", error.message);
 
                 if (++errors > MAX_CONSECUTIVE_ERRORS) {
                     console.error(
@@ -105,44 +144,7 @@ ORDER BY rec_id ASC`,
             errors = 0;
 
             try {
-                for (let i = 0; i < rows.length; i++) {
-                    const row: any = rows[i];
-
-                    const [data] = parseBuffer(row.data);
-
-                    const id = row.rec_id;
-                    // const app_id = row.app_id;
-                    const app = data?.app;
-                    const title = data?.req?.titl;
-                    const subtitle = data?.req?.subt;
-                    const body = data?.req?.body;
-                    const date =
-                        data?.date &&
-                        new Date(
-                            _2001_01_01 + data.date * 1000
-                        );
-
-                    console.log("received", id, "from", app);
-
-                    spawnSync(
-                        script,
-                        [
-                            id || "",
-                            app || "",
-                            title || "",
-                            subtitle || "",
-                            body || "",
-                            date?.toISOString() || "",
-                        ],
-                        {
-                            encoding: "utf8",
-                        }
-                    );
-
-                    if (i === rows.length - 1) {
-                        lastId = id;
-                    }
-                }
+                handle(rows as QueryResult[]);
             } catch (error) {
                 console.error("Unexpected error", error);
             }
