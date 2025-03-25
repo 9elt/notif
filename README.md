@@ -10,14 +10,14 @@ $ npm i -g @9elt/notif
 
 ## Example usage
 
-```shell
+```
 $ sudo chmod +x example.sh
 $ notif example.sh &
 ```
 
 <sub>_example.sh_</sub>
 
-```shell
+```sh
 #!/bin/sh
 
 ID="$1"
