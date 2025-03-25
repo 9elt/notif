@@ -4,7 +4,6 @@ import { parseBuffer } from "bplist-parser";
 import { spawnSync } from "child_process";
 import fs from "fs";
 import { userInfo } from "os";
-import { verbose } from "sqlite3";
 
 const QUERY_INTERVAL = 5_000;
 const MAX_CONSECUTIVE_ERRORS = 5;
@@ -34,7 +33,7 @@ try {
 const username = userInfo().username;
 const dbPath = `/Users/${username}/Library/Group Containers/group.com.apple.usernoted/db2/db`;
 
-const sqlite3 = verbose();
+const sqlite3 = require("sqlite3").verbose();
 const db = new sqlite3.Database(
     dbPath,
     sqlite3.OPEN_READONLY,
@@ -63,7 +62,6 @@ function close() {
 }
 
 process.on("SIGINT", close);
-process.on("SIGKILL", close);
 
 const _2001_01_01 = new Date("2001-01-01").getTime();
 
@@ -78,7 +76,7 @@ function loop() {
 WHERE rec_id > ${lastId}
 AND delivered_date > ${startDate}
 ORDER BY rec_id ASC`,
-        (error, rows) => {
+        (error: Error | undefined, rows: unknown[]) => {
             if (error) {
                 console.error("QUERY ERROR:", error.message);
 
