@@ -85,7 +85,7 @@ function loop() {
 WHERE rec_id > ${lastId}
 AND delivered_date > ${startDate}
 ORDER BY rec_id ASC`,
-        (error: Error | undefined, rows: unknown[]) => {
+        (error: Error | undefined, rows: QueryResult[]) => {
             if (error) {
                 console.error("Query error:", error.message);
 
@@ -108,7 +108,41 @@ ORDER BY rec_id ASC`,
             errors = 0;
 
             try {
-                handle(rows as QueryResult[]);
+                for (let i = 0; i < rows.length; i++) {
+                    const row = rows[i];
+
+                    const [data] = parseBuffer(row.data);
+
+                    const id = row.rec_id;
+                    const app = data?.app;
+                    const title = data?.req?.titl;
+                    const subtitle = data?.req?.subt;
+                    const body = data?.req?.body;
+                    const date =
+                        data?.date &&
+                        new Date(_2001_01_01 + data.date * 1000);
+
+                    console.log("received", id, "from", app);
+
+                    spawnSync(
+                        script,
+                        [
+                            id || "",
+                            app || "",
+                            title || "",
+                            subtitle || "",
+                            body || "",
+                            date?.toISOString() || "",
+                        ],
+                        {
+                            encoding: "utf8",
+                        }
+                    );
+
+                    if (i === rows.length - 1) {
+                        lastId = id;
+                    }
+                }
             } catch (error) {
                 console.error("Unexpected error", error);
             }
@@ -116,42 +150,4 @@ ORDER BY rec_id ASC`,
     );
 
     setTimeout(loop, QUERY_INTERVAL);
-}
-
-function handle(rows: QueryResult[]) {
-    for (let i = 0; i < rows.length; i++) {
-        const row = rows[i];
-
-        const [data] = parseBuffer(row.data);
-
-        const id = row.rec_id;
-        const app = data?.app;
-        const title = data?.req?.titl;
-        const subtitle = data?.req?.subt;
-        const body = data?.req?.body;
-        const date =
-            data?.date &&
-            new Date(_2001_01_01 + data.date * 1000);
-
-        console.log("received", id, "from", app);
-
-        spawnSync(
-            script,
-            [
-                id || "",
-                app || "",
-                title || "",
-                subtitle || "",
-                body || "",
-                date?.toISOString() || "",
-            ],
-            {
-                encoding: "utf8",
-            }
-        );
-
-        if (i === rows.length - 1) {
-            lastId = id;
-        }
-    }
 }
