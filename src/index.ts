@@ -72,11 +72,6 @@ const startDate = (Date.now() - _2001_01_01) / 1000;
 let lastId = 0;
 let errors = 0;
 
-type QueryResult = {
-    rec_id: number;
-    data: Buffer;
-};
-
 loop();
 
 function loop() {
@@ -85,7 +80,13 @@ function loop() {
 WHERE rec_id > ${lastId}
 AND delivered_date > ${startDate}
 ORDER BY rec_id ASC`,
-        (error: Error | undefined, rows: QueryResult[]) => {
+        (
+            error: Error | undefined,
+            rows: {
+                rec_id: number;
+                data: Buffer;
+            }[]
+        ) => {
             if (error) {
                 console.error("Query error:", error.message);
 
@@ -120,7 +121,9 @@ ORDER BY rec_id ASC`,
                     const body = data?.req?.body;
                     const date =
                         data?.date &&
-                        new Date(_2001_01_01 + data.date * 1000);
+                        new Date(
+                            _2001_01_01 + data.date * 1000
+                        );
 
                     console.log("received", id, "from", app);
 
